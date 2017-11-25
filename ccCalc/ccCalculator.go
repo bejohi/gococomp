@@ -8,16 +8,27 @@ import (
 func GetAllUniformPixelInRadius(uniformMatrix *[][]bool, centerPixel *model.LbpPixel, radius int) *[]model.LbpPixel{
 	matrixWidth := len((*uniformMatrix)[0])
 	matrixHeight := len(*uniformMatrix)
+
+	// We use this rectangle to roughly calculate the radius around our pixel.
+	// Inside the for loop we then calculate the euclidean distance, to know exactly if the pixel is in range.
 	roughRect := GetRectangleAroundPixelByRadius(centerPixel,radius,matrixWidth,matrixHeight)
 
 	listOfUniformPixel := []model.LbpPixel{}
 
 	for y := roughRect.Top; y <= roughRect.Bottom; y++{
 		for x := roughRect.Left; x <= roughRect.Right;x++{
-			//pixel := model.LbpPixel{x,y}
+			pixel := model.LbpPixel{x,y}
+			if pixel.Equals(centerPixel){
+				continue
+			}
+			if CalcPixelDistance(&pixel,centerPixel) > radius{
+				continue
+			}
+			if (*uniformMatrix)[y][x] == true{
+				listOfUniformPixel = append(listOfUniformPixel,pixel)
+			}
 		}
 	}
-
 	return &listOfUniformPixel
 }
 

@@ -6,9 +6,9 @@ import (
 	"github.com/bejohi/gococomp/ccCalc"
 )
 
-func getMockBoolMatrix(height int, width int) *[][]bool{
+func createMockBoolMatrix(height int, width int) *[][]bool{
 	matrix := make([][]bool,height)
-	for i := 0; i < width; i++{
+	for i := 0; i < height; i++{
 		matrix[i] = make([]bool, width)
 	}
 	return &matrix
@@ -72,4 +72,24 @@ func TestGetRectangleAroundPixelByRadius_WithPixelAtBorder_ResultShouldBeInRange
 			resultRect.Left, resultRect.Top, resultRect.Right,resultRect.Bottom)
 	}
 
+}
+
+func TestGetAllUniformPixelInRadius(t *testing.T){
+	// Arrange
+	matrix := createMockBoolMatrix(15,10)
+	(*matrix)[3][3] = true
+	(*matrix)[4][2] = true
+	(*matrix)[2][5] = true
+	(*matrix)[9][9] = true
+	(*matrix)[0][0] = true
+	pix := model.LbpPixel{2,4}
+	radius := 3
+
+	// Act
+	lbpPixelList := ccCalc.GetAllUniformPixelInRadius(matrix,&pix,radius)
+
+	// Assert
+	if len(*lbpPixelList) != 2{
+		t.Errorf("","The length of the lbpPixelList was wrong:",len(*lbpPixelList))
+	}
 }
