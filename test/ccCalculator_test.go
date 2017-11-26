@@ -86,7 +86,7 @@ func TestGetAllUniformPixelInRadius(t *testing.T){
 	radius := 3
 
 	// Act
-	lbpPixelList := ccCalc.GetAllUniformPixelInRadius(matrix,&pix,radius)
+	lbpPixelList := ccCalc.GetAllUniformPixelInCircle(matrix,&pix,radius)
 
 	// Assert
 	if len(*lbpPixelList) != 2{

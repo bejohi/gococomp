@@ -5,7 +5,7 @@ type LbpPixel struct {
 	Y int
 }
 
-func (lbpPixel LbpPixel)Equals(otherLbpPixel *LbpPixel) bool {
+func (lbpPixel LbpPixel)Equals(otherLbpPixel LbpPixel) bool {
 	if lbpPixel.X == otherLbpPixel.X && lbpPixel.Y == otherLbpPixel.Y{
 		return true
 	}

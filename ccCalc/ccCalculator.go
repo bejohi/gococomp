@@ -3,15 +3,35 @@ package ccCalc
 import (
 	"github.com/bejohi/gococomp/model"
 	"math"
+	"image"
 )
 
-func GetAllUniformPixelInRadius(uniformMatrix *[][]bool, centerPixel *model.LbpPixel, radius int) *[]model.LbpPixel{
-	matrixWidth := len((*uniformMatrix)[0])
-	matrixHeight := len(*uniformMatrix)
+
+func CreateConnectedComponentImg(uniformImg *image.Gray, radius int) model.ConnectedComponentImg{
+	
+	ccImg := model.ConnectedComponentImg{}
+	ccImg.Height = uniformImg.Rect.Max.Y
+	ccImg.Width = uniformImg.Rect.Max.X
+
+	*ccImg.ComponentMatrix = make([][]model.ConnectedComponent, ccImg.Height)
+	for y := 0; y < ccImg.Height; y++{
+		(*ccImg.ComponentMatrix)[y] = make([]model.ConnectedComponent,ccImg.Width)
+		for x := 0; x < ccImg.Width; x++{
+			centerPixel := model.LbpPixel{X:x,Y:y}
+			component := GetAllUniformPixelInRadius(uniformImg,ccImg.Height, ccImg.Width,centerPixel,radius)
+			ccImg.Count += len((*component.Pixels))
+			(*ccImg.ComponentMatrix)[y][x] = component
+		}
+	}
+
+	return ccImg
+}
+
+func GetAllUniformPixelInRadius(uniformImg *image.Gray, imgHeight int, imgWidth int, centerPixel model.LbpPixel, radius int) model.ConnectedComponent{
 
 	// We use this rectangle to roughly calculate the radius around our pixel.
 	// Inside the for loop we then calculate the euclidean distance, to know exactly if the pixel is in range.
-	roughRect := GetRectangleAroundPixelByRadius(centerPixel,radius,matrixWidth,matrixHeight)
+	roughRect := GetRectangleAroundPixelByRadius(centerPixel,radius,imgWidth,imgHeight)
 
 	listOfUniformPixel := []model.LbpPixel{}
 
@@ -21,20 +41,20 @@ func GetAllUniformPixelInRadius(uniformMatrix *[][]bool, centerPixel *model.LbpP
 			if pixel.Equals(centerPixel){
 				continue
 			}
-			if CalcPixelDistance(&pixel,centerPixel) > radius{
+			if CalcPixelDistance(&pixel,&centerPixel) > radius{
 				continue
 			}
-			if (*uniformMatrix)[y][x] == true{
+			if uniformImg.GrayAt(x,y).Y > 0{
 				listOfUniformPixel = append(listOfUniformPixel,pixel)
 			}
 		}
 	}
-	return &listOfUniformPixel
+	return model.ConnectedComponent{&listOfUniformPixel}
 }
 
 // getRectangleAroundPixelByRadius creates a rectangle around a given pixel, which is definitely in range of a matrix.
 // Therefor matrixWidth and matrixHeight are provided.
-func GetRectangleAroundPixelByRadius(pixel *model.LbpPixel, radius int, matrixWidth int, matrixHeight int) model.SidesRect {
+func GetRectangleAroundPixelByRadius(pixel model.LbpPixel, radius int, matrixWidth int, matrixHeight int) model.SidesRect {
 	left := pixel.X - radius
 	right := pixel.X + radius
 	top := pixel.Y - radius
