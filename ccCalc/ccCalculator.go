@@ -4,6 +4,7 @@ import (
 	"github.com/bejohi/gococomp/model"
 	"math"
 	"image"
+	"fmt"
 )
 
 
@@ -13,17 +14,18 @@ func CreateConnectedComponentImg(uniformImg *image.Gray, radius int) model.Conne
 	ccImg.Height = uniformImg.Rect.Max.Y
 	ccImg.Width = uniformImg.Rect.Max.X
 
-	*ccImg.ComponentMatrix = make([][]model.ConnectedComponent, ccImg.Height)
+	ccImg.ComponentMatrix = make([][]model.ConnectedComponent, ccImg.Height)
 	for y := 0; y < ccImg.Height; y++{
-		(*ccImg.ComponentMatrix)[y] = make([]model.ConnectedComponent,ccImg.Width)
+		fmt.Println(y)
+		ccImg.ComponentMatrix[y] = make([]model.ConnectedComponent,ccImg.Width)
 		for x := 0; x < ccImg.Width; x++{
 			centerPixel := model.LbpPixel{X:x,Y:y}
 			component := GetAllUniformPixelInRadius(uniformImg,ccImg.Height, ccImg.Width,centerPixel,radius)
 			ccImg.Count += len((*component.Pixels))
-			(*ccImg.ComponentMatrix)[y][x] = component
+			ccImg.ComponentMatrix[y][x] = component
 		}
 	}
-
+	fmt.Println("---------------")
 	return ccImg
 }
 
