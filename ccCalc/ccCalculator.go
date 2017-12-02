@@ -4,7 +4,6 @@ import (
 	"github.com/bejohi/gococomp/model"
 	"math"
 	"image"
-	"fmt"
 )
 
 
@@ -13,7 +12,6 @@ func CountConnectedComponents(uniformImg *image.Gray, radius int) int{
 	width := uniformImg.Rect.Max.X
 	count := 0
 	for y := 0; y < height; y++{
-		fmt.Println(count)
 		for x := 0; x < width; x++{
 			centerPixel := model.LbpPixel{X:x,Y:y}
 			count += GetAllUniformPixelInRadius(uniformImg,height,width,centerPixel,radius)
