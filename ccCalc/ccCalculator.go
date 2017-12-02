@@ -8,50 +8,39 @@ import (
 )
 
 
-func CreateConnectedComponentImg(uniformImg *image.Gray, radius int) model.ConnectedComponentImg{
-	
-	ccImg := model.ConnectedComponentImg{}
-	ccImg.Height = uniformImg.Rect.Max.Y
-	ccImg.Width = uniformImg.Rect.Max.X
-
-	ccImg.ComponentMatrix = make([][]model.ConnectedComponent, ccImg.Height)
-	for y := 0; y < ccImg.Height; y++{
-		fmt.Println(y)
-		ccImg.ComponentMatrix[y] = make([]model.ConnectedComponent,ccImg.Width)
-		for x := 0; x < ccImg.Width; x++{
+func CountConnectedComponents(uniformImg *image.Gray, radius int) int{
+	height := uniformImg.Rect.Max.Y
+	width := uniformImg.Rect.Max.X
+	count := 0
+	for y := 0; y < height; y++{
+		fmt.Println(count)
+		for x := 0; x < width; x++{
 			centerPixel := model.LbpPixel{X:x,Y:y}
-			component := GetAllUniformPixelInRadius(uniformImg,ccImg.Height, ccImg.Width,centerPixel,radius)
-			ccImg.Count += len((*component.Pixels))
-			ccImg.ComponentMatrix[y][x] = component
+			count += GetAllUniformPixelInRadius(uniformImg,height,width,centerPixel,radius)
 		}
 	}
-	fmt.Println("---------------")
-	return ccImg
+	return count
 }
 
-func GetAllUniformPixelInRadius(uniformImg *image.Gray, imgHeight int, imgWidth int, centerPixel model.LbpPixel, radius int) model.ConnectedComponent{
+func GetAllUniformPixelInRadius(uniformImg *image.Gray, imgHeight int, imgWidth int, centerPixel model.LbpPixel, radius int) int{
 
 	// We use this rectangle to roughly calculate the radius around our pixel.
 	// Inside the for loop we then calculate the euclidean distance, to know exactly if the pixel is in range.
 	roughRect := GetRectangleAroundPixelByRadius(centerPixel,radius,imgWidth,imgHeight)
-
-	listOfUniformPixel := []model.LbpPixel{}
+	count := 0
 
 	for y := roughRect.Top; y <= roughRect.Bottom; y++{
 		for x := roughRect.Left; x <= roughRect.Right;x++{
 			pixel := model.LbpPixel{x,y}
-			if pixel.Equals(centerPixel){
+			if pixel.Equals(centerPixel) || CalcPixelDistance(&pixel,&centerPixel) > radius{
 				continue
 			}
-			if CalcPixelDistance(&pixel,&centerPixel) > radius{
-				continue
-			}
-			if uniformImg.GrayAt(x,y).Y > 0{
-				listOfUniformPixel = append(listOfUniformPixel,pixel)
+			if uniformImg.GrayAt(x,y).Y >= 255{
+				count++
 			}
 		}
 	}
-	return model.ConnectedComponent{&listOfUniformPixel}
+	return count
 }
 
 // getRectangleAroundPixelByRadius creates a rectangle around a given pixel, which is definitely in range of a matrix.
