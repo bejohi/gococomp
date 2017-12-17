@@ -13,6 +13,10 @@ func CountConnectedComponents(uniformImg *image.Gray, radius int) int{
 	count := 0
 	for y := 0; y < height; y++{
 		for x := 0; x < width; x++{
+			// we only want to add theses cc's where, the center pixel is relevant.
+			if uniformImg.GrayAt(x,y).Y == 0{
+				continue
+			}
 			centerPixel := model.LbpPixel{X:x,Y:y}
 			count += GetAllUniformPixelInRadius(uniformImg,height,width,centerPixel,radius)
 		}
